@@ -28,7 +28,7 @@ async function fetchPage(url) {
     pts.set(m[1], { t: m[1], lat: +m[2], lon: +m[3], alt: Number.isFinite(alt) ? Math.round(alt) : null });
   }
   const end = html.match(/"end":"([^"]+)"/);
-  return { ended: !!end, endTime: end && end[1], points: [...pts.values()].sort((a, b) => (a.t < b.t ? -1 : 1)) };
+  return { ended: !!end && new Date(end[1]) < new Date(), endTime: end && end[1], points: [...pts.values()].sort((a, b) => (a.t < b.t ? -1 : 1)) };
 }
 
 (async () => {
