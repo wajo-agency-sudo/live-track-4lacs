@@ -1,0 +1,37 @@
+name: Posities ophalen
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: track
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: LiveTrack-pagina's ophalen
+        env:
+          LIVETRACK_LINKS: ${{ secrets.LIVETRACK_LINKS }}
+        run: node track.js
+      - name: Wijzigingen pushen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add positions.json
+          if git diff --cached --quiet; then
+            echo "Niets te pushen"
+          else
+            git commit -q -m "Posities $(TZ=Europe/Paris date '+%Y-%m-%d %H:%M')"
+            git push -q
+          fi
